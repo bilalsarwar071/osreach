@@ -1,0 +1,73 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: pytest -q
+
+  demo:
+    # Runs the analyses on the synthetic demo cloud and publishes the report
+    # to the job summary, so every commit shows the tool working end to end.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - name: Demo fixtures are regenerated from build_demo.py
+        run: |
+          python examples/build_demo.py
+          git diff --exit-code examples/
+      - name: Policy violations in the demo cloud are detected
+        run: |
+          set +e
+          osreach check examples/demo-before.json examples/policy.yaml > check.txt
+          code=$?
+          set -e
+          cat check.txt
+          test "$code" -eq 1
+      - name: Report
+        env:
+          NO_COLOR: "1"
+        run: |
+          {
+            echo '## osreach on the demo cloud'
+            echo '### Exposure to the internet'; echo '```'
+            osreach exposure examples/demo-before.json
+            echo '```'; echo '### Invariants'; echo '```'
+            cat check.txt
+            echo '```'; echo '### Semantic diff (before -> after)'; echo '```'
+            osreach diff examples/demo-before.json examples/demo-after.json
+            echo '```'; echo '### Lint'; echo '```'
+            osreach lint examples/demo-before.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

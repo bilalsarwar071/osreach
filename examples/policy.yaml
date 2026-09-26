@@ -1,0 +1,67 @@
+# Reachability invariants for the demo cloud.
+#
+#   expect: deny   -> no packet of the given service may get from any `from` to any `to`
+#   expect: allow  -> every `from` must be able to reach every `to` with that service
+#
+# Selectors: internet | cidr:X | vm:GLOB | net:GLOB | project:GLOB | sg:GLOB | port:ID | all
+# Omit proto/port to mean "any traffic at all".
+
+invariants:
+  - name: no-ssh-from-internet
+    description: Only bastion hosts may accept SSH from the internet.
+    expect: deny
+    from: internet
+    to: all
+    to_except: [vm:bastion-*]
+    proto: tcp
+    port: 22
+
+  - name: database-not-public
+    description: Postgres must never be reachable from the internet.
+    expect: deny
+    from: internet
+    to: vm:db-*
+    proto: tcp
+    port: 5432
+
+  - name: only-web-ports-public-on-web-tier
+    description: The web tier exposes 80/443 and nothing else below 1024.
+    expect: deny
+    from: internet
+    to: vm:web-*
+    proto: tcp
+    port: 1-79
+
+  - name: management-network-isolated
+    description: Nothing outside ops can reach the management network, whatever its SGs say.
+    expect: deny
+    from: [project:web-team, project:data-team, internet]
+    to: net:mgmt-net
+
+  - name: web-reaches-app
+    description: Required connectivity for the application.
+    expect: allow
+    from: vm:web-*
+    to: vm:app-*
+    proto: tcp
+    port: 8080
+
+  - name: bastion-reaches-app-over-ssh
+    expect: allow
+    from: vm:bastion-*
+    to: vm:app-*
+    proto: tcp
+    port: 22
+
+  - name: web-team-cannot-reach-data-team-except-postgres
+    description: Cross-project traffic is limited to the database port.
+    expect: deny
+    from: project:web-team
+    to: project:data-team
+    proto: tcp
+    port: 1-5431
+
+  - name: debug-vms-not-exposed
+    expect: deny
+    from: internet
+    to: vm:debug-*

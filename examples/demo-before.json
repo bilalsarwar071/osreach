@@ -1,0 +1,801 @@
+{
+  "schema": "osreach/snapshot/v1",
+  "meta": {
+    "source": "examples/build_demo.py",
+    "sanitized": true
+  },
+  "projects": [
+    {
+      "id": "65879d73-dc14-5c1a-b8e1-5f2ea55e33cf",
+      "name": "admin"
+    },
+    {
+      "id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad",
+      "name": "web-team"
+    },
+    {
+      "id": "335adde4-5408-5e42-b086-98d4ab3b6144",
+      "name": "data-team"
+    },
+    {
+      "id": "95ed558c-56bf-561f-a73a-1d1de4176410",
+      "name": "ops"
+    }
+  ],
+  "networks": [
+    {
+      "id": "13107978-c5c5-5503-8b15-3d1c76673493",
+      "name": "public",
+      "project_id": "65879d73-dc14-5c1a-b8e1-5f2ea55e33cf",
+      "external": true,
+      "shared": false
+    },
+    {
+      "id": "3e5b2057-a8f9-5f01-8b04-5fed9b5e5138",
+      "name": "web-net",
+      "project_id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad",
+      "external": false,
+      "shared": false
+    },
+    {
+      "id": "07a99d04-ba52-5979-a4e5-13dac68b26ec",
+      "name": "app-net",
+      "project_id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad",
+      "external": false,
+      "shared": false
+    },
+    {
+      "id": "a846a9a5-76ec-519f-923e-5b7445196a10",
+      "name": "data-net",
+      "project_id": "335adde4-5408-5e42-b086-98d4ab3b6144",
+      "external": false,
+      "shared": false
+    },
+    {
+      "id": "8acbcece-2fea-5540-9152-7359ca186a98",
+      "name": "mgmt-net",
+      "project_id": "95ed558c-56bf-561f-a73a-1d1de4176410",
+      "external": false,
+      "shared": false
+    }
+  ],
+  "subnets": [
+    {
+      "id": "235d7fc1-ed4b-5fe2-ac98-577a951882c6",
+      "network_id": "13107978-c5c5-5503-8b15-3d1c76673493",
+      "cidr": "203.0.113.0/24",
+      "name": "public-subnet",
+      "ip_version": 4,
+      "gateway_ip": "203.0.113.1"
+    },
+    {
+      "id": "5d663aa6-9662-5383-9f7c-4a7fed4a8214",
+      "network_id": "3e5b2057-a8f9-5f01-8b04-5fed9b5e5138",
+      "cidr": "10.10.1.0/24",
+      "name": "web-net-subnet",
+      "ip_version": 4,
+      "gateway_ip": "10.10.1.1"
+    },
+    {
+      "id": "15537d1c-b9b6-5306-8b2f-3194d91df1f7",
+      "network_id": "07a99d04-ba52-5979-a4e5-13dac68b26ec",
+      "cidr": "10.10.2.0/24",
+      "name": "app-net-subnet",
+      "ip_version": 4,
+      "gateway_ip": "10.10.2.1"
+    },
+    {
+      "id": "af7e0ffa-672a-555e-bb7d-c4748e780aa1",
+      "network_id": "a846a9a5-76ec-519f-923e-5b7445196a10",
+      "cidr": "10.20.0.0/24",
+      "name": "data-net-subnet",
+      "ip_version": 4,
+      "gateway_ip": "10.20.0.1"
+    },
+    {
+      "id": "2a9b01f1-2312-53cf-830f-f8a83ad7737b",
+      "network_id": "8acbcece-2fea-5540-9152-7359ca186a98",
+      "cidr": "10.30.0.0/24",
+      "name": "mgmt-net-subnet",
+      "ip_version": 4,
+      "gateway_ip": "10.30.0.1"
+    }
+  ],
+  "routers": [
+    {
+      "id": "ae512f65-790a-5dd3-9dcd-bbcc38715c2e",
+      "name": "web-router",
+      "project_id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad",
+      "admin_state_up": true,
+      "gateway": {
+        "network_id": "13107978-c5c5-5503-8b15-3d1c76673493",
+        "enable_snat": true,
+        "ips": [
+          "203.0.113.10"
+        ]
+      },
+      "interfaces": [
+        {
+          "subnet_id": "5d663aa6-9662-5383-9f7c-4a7fed4a8214",
+          "ip": null
+        },
+        {
+          "subnet_id": "15537d1c-b9b6-5306-8b2f-3194d91df1f7",
+          "ip": null
+        }
+      ],
+      "routes": []
+    },
+    {
+      "id": "20013261-e3af-512a-b4b2-ba5c26298a44",
+      "name": "data-router",
+      "project_id": "335adde4-5408-5e42-b086-98d4ab3b6144",
+      "admin_state_up": true,
+      "gateway": {
+        "network_id": "13107978-c5c5-5503-8b15-3d1c76673493",
+        "enable_snat": true,
+        "ips": [
+          "203.0.113.11"
+        ]
+      },
+      "interfaces": [
+        {
+          "subnet_id": "af7e0ffa-672a-555e-bb7d-c4748e780aa1",
+          "ip": null
+        }
+      ],
+      "routes": []
+    }
+  ],
+  "security_groups": [
+    {
+      "id": "e9664fe9-c389-5dfa-8f68-b1092843dbc8",
+      "name": "bastion",
+      "project_id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad",
+      "stateful": true,
+      "rules": [
+        {
+          "id": "042f4094-4b07-5329-9e89-2d53eb77d7c9",
+          "direction": "ingress",
+          "ethertype": "IPv4",
+          "protocol": "tcp",
+          "port_range_min": 22,
+          "port_range_max": 22,
+          "remote_ip_prefix": "0.0.0.0/0",
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "5e443bf7-16b9-5048-a498-a933e9ed8220",
+          "direction": "egress",
+          "ethertype": "IPv4",
+          "protocol": null,
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": null,
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "4afd23cc-d225-5f5a-825b-df4fca2ae37c",
+          "direction": "egress",
+          "ethertype": "IPv6",
+          "protocol": null,
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": null,
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "bbf1e9e0-abe5-59f7-9aac-da2c95b423ec",
+      "name": "web",
+      "project_id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad",
+      "stateful": true,
+      "rules": [
+        {
+          "id": "45edd562-fe94-55e4-b9ea-056dd05e5e96",
+          "direction": "ingress",
+          "ethertype": "IPv4",
+          "protocol": "tcp",
+          "port_range_min": 80,
+          "port_range_max": 80,
+          "remote_ip_prefix": "0.0.0.0/0",
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "21001dc7-602a-5699-8928-4e7f8da8c8e0",
+          "direction": "ingress",
+          "ethertype": "IPv4",
+          "protocol": "tcp",
+          "port_range_min": 443,
+          "port_range_max": 443,
+          "remote_ip_prefix": "0.0.0.0/0",
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "eb893325-0172-5ea7-a8a7-74e7d219bbfa",
+          "direction": "ingress",
+          "ethertype": "IPv4",
+          "protocol": "tcp",
+          "port_range_min": 22,
+          "port_range_max": 22,
+          "remote_ip_prefix": null,
+          "remote_group_id": "e9664fe9-c389-5dfa-8f68-b1092843dbc8",
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "1714a4f0-4cbd-5579-ac94-28e210b36f8a",
+          "direction": "egress",
+          "ethertype": "IPv4",
+          "protocol": null,
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": null,
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "9bfb2cbb-2b2a-5269-ad8b-fe5e95f40c1f",
+          "direction": "egress",
+          "ethertype": "IPv6",
+          "protocol": null,
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": null,
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "28da072b-ea39-5d54-b229-a6cd34696474",
+      "name": "app",
+      "project_id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad",
+      "stateful": true,
+      "rules": [
+        {
+          "id": "5a1f8025-4638-5408-9691-f94454b2e577",
+          "direction": "ingress",
+          "ethertype": "IPv4",
+          "protocol": "tcp",
+          "port_range_min": 8080,
+          "port_range_max": 8080,
+          "remote_ip_prefix": null,
+          "remote_group_id": "bbf1e9e0-abe5-59f7-9aac-da2c95b423ec",
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "feaa02a6-eeae-52c7-9c03-ef87d759c712",
+          "direction": "ingress",
+          "ethertype": "IPv4",
+          "protocol": "tcp",
+          "port_range_min": 22,
+          "port_range_max": 22,
+          "remote_ip_prefix": null,
+          "remote_group_id": "e9664fe9-c389-5dfa-8f68-b1092843dbc8",
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "0372fdb6-f9f5-5d1d-bbd5-b2a667184306",
+          "direction": "ingress",
+          "ethertype": "IPv4",
+          "protocol": "icmp",
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": "10.10.0.0/16",
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "9cd30e76-3ada-5ded-9a8d-6d8bad58f5e2",
+          "direction": "egress",
+          "ethertype": "IPv4",
+          "protocol": null,
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": null,
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "64a29286-e6d0-5776-bdfa-5a2c97f3ad32",
+          "direction": "egress",
+          "ethertype": "IPv6",
+          "protocol": null,
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": null,
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "53c96b59-1ba0-5c8b-8562-18108316c271",
+      "name": "db",
+      "project_id": "335adde4-5408-5e42-b086-98d4ab3b6144",
+      "stateful": true,
+      "rules": [
+        {
+          "id": "7e8911be-db97-52eb-8614-483892caf8b5",
+          "direction": "ingress",
+          "ethertype": "IPv4",
+          "protocol": "tcp",
+          "port_range_min": 5432,
+          "port_range_max": 5432,
+          "remote_ip_prefix": "10.0.0.0/8",
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": "internal clients"
+        },
+        {
+          "id": "b163a357-74fa-5070-8e30-65d067392bd5",
+          "direction": "ingress",
+          "ethertype": "IPv4",
+          "protocol": "tcp",
+          "port_range_min": 5432,
+          "port_range_max": 5432,
+          "remote_ip_prefix": "10.20.0.0/24",
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": "etl"
+        },
+        {
+          "id": "0b1c7b33-9e29-5bec-a793-966566d45472",
+          "direction": "ingress",
+          "ethertype": "IPv4",
+          "protocol": "tcp",
+          "port_range_min": 5432,
+          "port_range_max": 5432,
+          "remote_ip_prefix": "203.0.113.10/32",
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": "web-team via SNAT"
+        },
+        {
+          "id": "5ed3009a-5268-50cc-a1c5-022151f41a43",
+          "direction": "ingress",
+          "ethertype": "IPv4",
+          "protocol": "tcp",
+          "port_range_min": 22,
+          "port_range_max": 22,
+          "remote_ip_prefix": "0.0.0.0/0",
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": "TODO: restrict"
+        },
+        {
+          "id": "1e2d746c-37ed-52bd-83ae-cae84ffec2aa",
+          "direction": "egress",
+          "ethertype": "IPv4",
+          "protocol": null,
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": null,
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "7d486210-5308-588e-b781-ec73d6842fcf",
+          "direction": "egress",
+          "ethertype": "IPv6",
+          "protocol": null,
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": null,
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "391f9067-60fb-5b60-a335-56ee0b88437c",
+      "name": "etl",
+      "project_id": "335adde4-5408-5e42-b086-98d4ab3b6144",
+      "stateful": true,
+      "rules": [
+        {
+          "id": "452db204-022f-5d5a-af71-8cd2f8f1fe73",
+          "direction": "egress",
+          "ethertype": "IPv4",
+          "protocol": null,
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": null,
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "67c5be4e-a830-5257-8d16-37bd9bde0273",
+          "direction": "egress",
+          "ethertype": "IPv6",
+          "protocol": null,
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": null,
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "7293ea6a-9f10-58e7-a5d8-02031c5431cb",
+      "name": "monitoring",
+      "project_id": "95ed558c-56bf-561f-a73a-1d1de4176410",
+      "stateful": true,
+      "rules": [
+        {
+          "id": "f69e5e3d-6263-54b8-8483-1573e346e5a1",
+          "direction": "ingress",
+          "ethertype": "IPv4",
+          "protocol": null,
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": "10.0.0.0/8",
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "5b3fad0d-bd1b-5131-be58-4df34b5968c1",
+          "direction": "egress",
+          "ethertype": "IPv4",
+          "protocol": null,
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": null,
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "68371603-0509-50a8-83a7-2809a79f46e4",
+          "direction": "egress",
+          "ethertype": "IPv6",
+          "protocol": null,
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": null,
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "1f5bcfdc-0df4-5ca2-86fa-3a3512bb0ba2",
+      "name": "edge",
+      "project_id": "95ed558c-56bf-561f-a73a-1d1de4176410",
+      "stateful": true,
+      "rules": [
+        {
+          "id": "647dad55-1592-5bc3-94b5-f27b7bb4ad4d",
+          "direction": "ingress",
+          "ethertype": "IPv4",
+          "protocol": "tcp",
+          "port_range_min": 443,
+          "port_range_max": 443,
+          "remote_ip_prefix": "0.0.0.0/0",
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "66c8c3e6-7e38-5de0-ac2f-309b861147e8",
+          "direction": "ingress",
+          "ethertype": "IPv4",
+          "protocol": "udp",
+          "port_range_min": 51820,
+          "port_range_max": 51820,
+          "remote_ip_prefix": "0.0.0.0/0",
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "7812a489-c8ea-5d71-b64d-5f0f9751151d",
+          "direction": "egress",
+          "ethertype": "IPv4",
+          "protocol": null,
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": null,
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        },
+        {
+          "id": "2ac18fcf-b61e-51e8-817e-26a2235987b9",
+          "direction": "egress",
+          "ethertype": "IPv6",
+          "protocol": null,
+          "port_range_min": null,
+          "port_range_max": null,
+          "remote_ip_prefix": null,
+          "remote_group_id": null,
+          "remote_address_group_id": null,
+          "description": ""
+        }
+      ]
+    },
+    {
+      "id": "7a4be578-d74c-563e-97d6-bc4772d3aabd",
+      "name": "legacy-nfs",
+      "project_id": "95ed558c-56bf-561f-a73a-1d1de4176410",
+      "stateful": true,
+      "rules": [
+        {
+          "id": "863bd586-326d-5d44-b4cf-cb81a9964cdb",
+          "direction": "ingress",
+          "ethertype": "IPv4",
+          "protocol": "tcp",
+          "port_range_min": 2049,
+          "port_range_max": 2049,
+          "remote_ip_prefix": null,
+          "remote_group_id": "f6538739-4cf5-5e37-832d-19e2d5cd447f",
+          "remote_address_group_id": null,
+          "description": ""
+        }
+      ]
+    }
+  ],
+  "address_groups": [],
+  "ports": [
+    {
+      "id": "4d1e9c5f-010e-5fc1-874b-90a00a6c186c",
+      "network_id": "3e5b2057-a8f9-5f01-8b04-5fed9b5e5138",
+      "name": "web-1-port",
+      "project_id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad",
+      "device_id": "b956d388-e817-564d-8978-289d44ff48ac",
+      "device_owner": "compute:nova",
+      "device_name": "web-1",
+      "fixed_ips": [
+        {
+          "subnet_id": "5d663aa6-9662-5383-9f7c-4a7fed4a8214",
+          "ip": "10.10.1.11"
+        }
+      ],
+      "security_group_ids": [
+        "bbf1e9e0-abe5-59f7-9aac-da2c95b423ec"
+      ],
+      "port_security_enabled": true,
+      "allowed_address_pairs": [],
+      "admin_state_up": true
+    },
+    {
+      "id": "3cce0185-ace8-51cb-afa7-9e0464e0f702",
+      "network_id": "3e5b2057-a8f9-5f01-8b04-5fed9b5e5138",
+      "name": "web-2-port",
+      "project_id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad",
+      "device_id": "cb4a636c-0eb4-530e-b5fd-17cb569b0c40",
+      "device_owner": "compute:nova",
+      "device_name": "web-2",
+      "fixed_ips": [
+        {
+          "subnet_id": "5d663aa6-9662-5383-9f7c-4a7fed4a8214",
+          "ip": "10.10.1.12"
+        }
+      ],
+      "security_group_ids": [
+        "bbf1e9e0-abe5-59f7-9aac-da2c95b423ec"
+      ],
+      "port_security_enabled": true,
+      "allowed_address_pairs": [],
+      "admin_state_up": true
+    },
+    {
+      "id": "524a4720-83a8-5f14-bb2a-ba2636949650",
+      "network_id": "3e5b2057-a8f9-5f01-8b04-5fed9b5e5138",
+      "name": "bastion-1-port",
+      "project_id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad",
+      "device_id": "fc186abb-c3bf-5cc2-8e75-dd1012413c88",
+      "device_owner": "compute:nova",
+      "device_name": "bastion-1",
+      "fixed_ips": [
+        {
+          "subnet_id": "5d663aa6-9662-5383-9f7c-4a7fed4a8214",
+          "ip": "10.10.1.5"
+        }
+      ],
+      "security_group_ids": [
+        "e9664fe9-c389-5dfa-8f68-b1092843dbc8"
+      ],
+      "port_security_enabled": true,
+      "allowed_address_pairs": [],
+      "admin_state_up": true
+    },
+    {
+      "id": "8d4a43ba-9a5d-589f-b545-4aee0c3a0cff",
+      "network_id": "07a99d04-ba52-5979-a4e5-13dac68b26ec",
+      "name": "app-1-port",
+      "project_id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad",
+      "device_id": "cf1a394d-a02c-5b2a-80ff-196cea3206f0",
+      "device_owner": "compute:nova",
+      "device_name": "app-1",
+      "fixed_ips": [
+        {
+          "subnet_id": "15537d1c-b9b6-5306-8b2f-3194d91df1f7",
+          "ip": "10.10.2.21"
+        }
+      ],
+      "security_group_ids": [
+        "28da072b-ea39-5d54-b229-a6cd34696474"
+      ],
+      "port_security_enabled": true,
+      "allowed_address_pairs": [],
+      "admin_state_up": true
+    },
+    {
+      "id": "57e47a48-f5fd-5706-9f8e-74fabf9c9661",
+      "network_id": "07a99d04-ba52-5979-a4e5-13dac68b26ec",
+      "name": "debug-1-port",
+      "project_id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad",
+      "device_id": "a08d9e8b-3c1f-5593-97a9-34809675f46b",
+      "device_owner": "compute:nova",
+      "device_name": "debug-1",
+      "fixed_ips": [
+        {
+          "subnet_id": "15537d1c-b9b6-5306-8b2f-3194d91df1f7",
+          "ip": "10.10.2.99"
+        }
+      ],
+      "security_group_ids": [],
+      "port_security_enabled": false,
+      "allowed_address_pairs": [],
+      "admin_state_up": true
+    },
+    {
+      "id": "87be8610-b937-5ebd-ace7-255a6d8708f8",
+      "network_id": "a846a9a5-76ec-519f-923e-5b7445196a10",
+      "name": "db-1-port",
+      "project_id": "335adde4-5408-5e42-b086-98d4ab3b6144",
+      "device_id": "194d8a5c-e1ab-59f1-a7be-8c497eb9cfcd",
+      "device_owner": "compute:nova",
+      "device_name": "db-1",
+      "fixed_ips": [
+        {
+          "subnet_id": "af7e0ffa-672a-555e-bb7d-c4748e780aa1",
+          "ip": "10.20.0.10"
+        }
+      ],
+      "security_group_ids": [
+        "53c96b59-1ba0-5c8b-8562-18108316c271"
+      ],
+      "port_security_enabled": true,
+      "allowed_address_pairs": [],
+      "admin_state_up": true
+    },
+    {
+      "id": "db7ebcb2-fb72-519e-86b4-10d403f235b6",
+      "network_id": "a846a9a5-76ec-519f-923e-5b7445196a10",
+      "name": "etl-1-port",
+      "project_id": "335adde4-5408-5e42-b086-98d4ab3b6144",
+      "device_id": "6e5c18d3-3a3e-58af-8621-05277b5367a7",
+      "device_owner": "compute:nova",
+      "device_name": "etl-1",
+      "fixed_ips": [
+        {
+          "subnet_id": "af7e0ffa-672a-555e-bb7d-c4748e780aa1",
+          "ip": "10.20.0.20"
+        }
+      ],
+      "security_group_ids": [
+        "391f9067-60fb-5b60-a335-56ee0b88437c"
+      ],
+      "port_security_enabled": true,
+      "allowed_address_pairs": [],
+      "admin_state_up": true
+    },
+    {
+      "id": "d3c34ca5-fbe7-5b32-b975-b09d07142e84",
+      "network_id": "8acbcece-2fea-5540-9152-7359ca186a98",
+      "name": "monitor-1-port",
+      "project_id": "95ed558c-56bf-561f-a73a-1d1de4176410",
+      "device_id": "303566e6-728f-5c2a-a655-bbe7c1564f0e",
+      "device_owner": "compute:nova",
+      "device_name": "monitor-1",
+      "fixed_ips": [
+        {
+          "subnet_id": "2a9b01f1-2312-53cf-830f-f8a83ad7737b",
+          "ip": "10.30.0.5"
+        }
+      ],
+      "security_group_ids": [
+        "7293ea6a-9f10-58e7-a5d8-02031c5431cb"
+      ],
+      "port_security_enabled": true,
+      "allowed_address_pairs": [],
+      "admin_state_up": true
+    },
+    {
+      "id": "101c3819-e523-5ed2-92cd-adf4af3247d4",
+      "network_id": "13107978-c5c5-5503-8b15-3d1c76673493",
+      "name": "edge-1-port",
+      "project_id": "95ed558c-56bf-561f-a73a-1d1de4176410",
+      "device_id": "62627a16-6cf5-58c8-a477-24cd04dabe98",
+      "device_owner": "compute:nova",
+      "device_name": "edge-1",
+      "fixed_ips": [
+        {
+          "subnet_id": "235d7fc1-ed4b-5fe2-ac98-577a951882c6",
+          "ip": "203.0.113.50"
+        }
+      ],
+      "security_group_ids": [
+        "1f5bcfdc-0df4-5ca2-86fa-3a3512bb0ba2"
+      ],
+      "port_security_enabled": true,
+      "allowed_address_pairs": [],
+      "admin_state_up": true
+    }
+  ],
+  "floating_ips": [
+    {
+      "id": "edd9c0f8-fc4d-5d41-b5d7-1ff4d64ca190",
+      "ip": "203.0.113.21",
+      "network_id": "13107978-c5c5-5503-8b15-3d1c76673493",
+      "port_id": "4d1e9c5f-010e-5fc1-874b-90a00a6c186c",
+      "fixed_ip": "10.10.1.11",
+      "router_id": "ae512f65-790a-5dd3-9dcd-bbcc38715c2e",
+      "project_id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad"
+    },
+    {
+      "id": "9a6f3fac-7cee-5033-92fb-3c77fdb256b4",
+      "ip": "203.0.113.22",
+      "network_id": "13107978-c5c5-5503-8b15-3d1c76673493",
+      "port_id": "3cce0185-ace8-51cb-afa7-9e0464e0f702",
+      "fixed_ip": "10.10.1.12",
+      "router_id": "ae512f65-790a-5dd3-9dcd-bbcc38715c2e",
+      "project_id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad"
+    },
+    {
+      "id": "0287f16b-692a-5cab-abfd-9fa9a96b4f7d",
+      "ip": "203.0.113.25",
+      "network_id": "13107978-c5c5-5503-8b15-3d1c76673493",
+      "port_id": "524a4720-83a8-5f14-bb2a-ba2636949650",
+      "fixed_ip": "10.10.1.5",
+      "router_id": "ae512f65-790a-5dd3-9dcd-bbcc38715c2e",
+      "project_id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad"
+    },
+    {
+      "id": "405d33db-ce22-5cf1-8f8e-5763f94e5512",
+      "ip": "203.0.113.30",
+      "network_id": "13107978-c5c5-5503-8b15-3d1c76673493",
+      "port_id": "57e47a48-f5fd-5706-9f8e-74fabf9c9661",
+      "fixed_ip": "10.10.2.99",
+      "router_id": "ae512f65-790a-5dd3-9dcd-bbcc38715c2e",
+      "project_id": "870f67cb-8234-5b5e-ac0d-f8c179b583ad"
+    },
+    {
+      "id": "3e74b0e0-f110-52e9-b524-9bd4e43e0aae",
+      "ip": "203.0.113.40",
+      "network_id": "13107978-c5c5-5503-8b15-3d1c76673493",
+      "port_id": "87be8610-b937-5ebd-ace7-255a6d8708f8",
+      "fixed_ip": "10.20.0.10",
+      "router_id": "20013261-e3af-512a-b4b2-ba5c26298a44",
+      "project_id": "335adde4-5408-5e42-b086-98d4ab3b6144"
+    }
+  ]
+}
