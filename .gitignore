@@ -22,3 +22,9 @@ secure.yaml
 *.pem
 *.key
 anon.key
+
+# TLA+ tools and TLC output
+tla/tla2tools.jar
+tla/states/
+states/
+tla/*_TTrace_*

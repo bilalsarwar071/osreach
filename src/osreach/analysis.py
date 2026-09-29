@@ -22,7 +22,7 @@ from .common import (
     proto_number,
     rule_port_range,
 )
-from .encode import Encoder, Observables, Reach, Witness, any_of, extract_witness
+from .encode import Encoder, Observables, Reach, Witness, any_of, extract_witness, in_net
 from .reference import Pkt, Simulator
 from .selectors import endpoint_label, resolve_many
 from .snapshot import Rule, SecurityGroup, Snapshot, Topology
@@ -146,6 +146,8 @@ class Analyzer:
             o.proto == 6,                                   # prefer TCP when the protocol is free
             z3.Implies(o.proto == ICMP, o.dport == 8),      # ICMP echo request
             z3.Implies(o.proto != ICMP, o.dport != 0),      # a real port number
+            # an outside address that is not also one of the cloud's own subnets
+            z3.And(*[z3.Not(in_net(o.ext, n)) for n in self.topo.subnet_net.values()] or [z3.BoolVal(True)]),
             z3.And(low != 0, low != 255),                   # a host address, not .0 / .255
         ]
 
@@ -332,6 +334,11 @@ class Analyzer:
                 matches = {r.id: enc.rule_match(r, peer) for r in rules}
                 redundant: set[str] = set()
                 for r in rules:
+                    if r.remote_address_group_id:
+                        add("warning", "address-group-rule", f"{sg.name}: {describe_rule(t, r)} uses an address "
+                            "group; on at least one ML2/OVN cloud such rules were accepted by the API but not "
+                            "enforced (docs/semantics.md section 9), so confirm with a real probe",
+                            security_group=sg.name, rule_id=r.id)
                     if r.remote_group_id and r.remote_group_id not in t.sgs:
                         add("warning", "dangling-remote-group", f"{sg.name}: {describe_rule(t, r)} refers to a "
                             "security group that is not in the snapshot", security_group=sg.name, rule_id=r.id)

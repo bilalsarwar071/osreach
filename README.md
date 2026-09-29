@@ -34,6 +34,20 @@ These two VMs live in *different projects* with no shared router, and no
 single security group looks wrong. The path runs out through one floating IP
 and back in through another, and osreach finds it because it models NAT.
 
+## Used on a real production cloud
+
+On a production Canonical OpenStack (Sunbeam) cloud, osreach found five real
+problems, and a probe on the real network confirmed each one. The worst: a
+"LAN only" Remote Desktop rule whose CIDR silently contained the cloud's own
+external network, an unauthenticated LLM API open to everyone, and VMs able to
+reach the firewall's and core switch's management interfaces. osreach then
+verified each fix step by step, from **2/6 to 10/10 policy invariants**.
+
+When the OpenStack API and the real data plane disagreed, the session was
+recorded as a trace and checked with **TLA+ trace validation** against seven
+competing explanations. See **[the case study](docs/case-study.md)** and the
+**[formal models](tla/README.md)**.
+
 ## Features
 
 | Command | What it does |
@@ -42,7 +56,7 @@ and back in through another, and osreach finds it because it models NAT.
 | `osreach query` | Can FROM reach TO (optionally on a given proto/port)? Prints a witness or proves unreachability |
 | `osreach check` | Verifies `deny`/`allow` invariants from a YAML policy; exits 1 on violation, which makes it a CI gate for your cloud |
 | `osreach diff` | *Semantic* diff of two snapshots: which rules grant or revoke access, and which endpoint pairs became (un)reachable |
-| `osreach lint` | Redundant (subsumed) rules, dead rules, dangling remote groups, disabled port security, unused groups |
+| `osreach lint` | Redundant (subsumed) rules, dead rules, dangling remote groups, disabled port security, unused groups, address-group rules to double-check |
 | `osreach snapshot` | Captures Neutron/Nova/Keystone state through openstacksdk (read-only) |
 | `osreach anonymize` | Keyed, prefix-preserving anonymisation that provably keeps every analysis result, so private-cloud data can be published |
 
@@ -177,11 +191,36 @@ direction each simplification errs, is in
   wrong NAT precedence all make that test fail.
 * **Anonymisation is semantics-preserving by test**: policy, exposure and
   lint results are identical before and after.
+* **Checked against a real cloud.** Every prediction in the
+  [case study](docs/case-study.md) was confirmed with a real `nc`/`curl`/ping
+  probe, and the two places where the OpenStack API and the data plane
+  disagreed are documented in [docs/semantics.md §9](docs/semantics.md#9-when-the-api-and-the-data-plane-disagree).
+
+## Formal models (TLA+)
+
+[`tla/`](tla/README.md) holds two TLA+ specifications, checked with TLC in CI:
+
+* **`SGMigration`**: is a *procedure* for changing security groups on a live
+  VM safe while changes reach the data plane asynchronously? TLC shows that
+  "add the new rule, verify with a probe, then remove the old one" preserves
+  access, and produces counterexamples for the wrong order, for skipping
+  verification without in-order delivery, and for forgetting that a VM's
+  permissions are the union of all its groups.
+* **`SGTrace`**: trace validation. A recorded sequence of 36 API calls and
+  probe results from the production incident is checked against seven
+  hypotheses about how the data plane treats address-group rules. Four are
+  rejected; for the three that survive, TLC proves that a five-step
+  experiment tells them apart.
+
+```bash
+python tla/run.py     # needs Java and tla2tools.jar; see tla/README.md
+```
 
 ## Scope and limitations
 
 The model covers IPv4 through ML2/OVN-style Neutron: security groups
-(including remote groups and address groups), port security, anti-spoofing,
+(including remote groups and address groups, although see
+[§9](docs/semantics.md#9-when-the-api-and-the-data-plane-disagree) on the latter), port security, anti-spoofing,
 allowed-address-pairs, admin state, routers with SNAT, floating IPs and
 provider/external networks.
 
@@ -193,9 +232,9 @@ lists which is which.
 
 ## Roadmap
 
-- [ ] **Validate the model against the real data plane**: compile each witness
-      into an `ovn-trace` invocation and check that OVN's logical flows agree
-      (trace validation of the spec against the implementation)
+- [x] Trace validation of recorded API calls and probes against TLA+ hypotheses (`tla/`)
+- [ ] Run the discriminating address-group experiment and report the result upstream
+- [ ] `osreach probe`: turn each witness into a real probe (and an `ovn-trace` call), and record the results as a trace automatically
 - [ ] Static routes and multi-hop routing
 - [ ] IPv6
 - [ ] Octavia listeners and FIP port forwarding
@@ -213,7 +252,8 @@ python examples/build_demo.py   # regenerate demo fixtures after changing the bu
 
 Layout: `snapshot.py` (schema and indexes), `encode.py` (Z3 semantics),
 `reference.py` (concrete semantics), `analysis.py` (query, exposure, check,
-diff, lint), `anonymize.py`, `extract.py` (openstacksdk), `cli.py`.
+diff, lint), `anonymize.py`, `extract.py` (openstacksdk), `cli.py`; TLA+
+models in `tla/`.
 
 ## License
 

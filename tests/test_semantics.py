@@ -237,3 +237,26 @@ def test_allowed_address_pair_receives_traffic():
     an = Analyzer(c.s)
     r = an.enc.reach(PortEP("a"), PortEP("b"))
     assert an.model(r.formula, an.enc.out_dip == int(ipaddress.IPv4Address("10.0.0.100"))) is not None
+
+
+def test_witness_prefers_addresses_outside_the_cloud():
+    """A cloud that numbers a tenant network from public space must not produce confusing witnesses."""
+    c = Cloud()
+    c.net("public", "203.0.113.0/24", external=True)
+    c.net("t", "198.51.100.0/24")
+    c.router("r", ["t"], gateway="public", gw_ip="203.0.113.1")
+    c.sg("g", ingress(), egress())          # any protocol from anywhere
+    c.vm("a", "t", "198.51.100.10", ["g"])
+    c.fip("203.0.113.9", "a", "198.51.100.10", "r")
+    w = reach(c, INTERNET, "a")
+    assert w is not None
+    assert ipaddress.IPv4Address(w.sent.sip) not in ipaddress.IPv4Network("198.51.100.0/24")
+
+
+def test_lint_warns_about_address_group_rules():
+    from osreach.snapshot import AddressGroup
+
+    c = two_vms_same_net([ingress(**tcp(22), remote_address_group_id="ag")])
+    c.s.address_groups.append(AddressGroup("ag", "admins", ["10.0.0.0/24"]))
+    kinds = {f["kind"] for f in Analyzer(c.s).lint()}
+    assert "address-group-rule" in kinds

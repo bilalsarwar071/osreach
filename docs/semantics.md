@@ -171,3 +171,25 @@ a real cloud, the direction of the error matters:
 3. Mutation check: deliberately breaking the encoding (for example an
    off-by-one in port ranges, ignoring router admin state, or letting SNAT
    apply to FIP-bound addresses) makes the differential test fail.
+
+## 9. When the API and the data plane disagree
+
+osreach reasons about what the OpenStack **API** reports. On a production
+ML2/OVN cloud (see [case-study.md](case-study.md)), two disagreements with the
+real data plane were observed, and both were caught only because every change
+was followed by a real probe:
+
+1. **Egress rules whose remote is an address group were not enforced.** With
+   such a rule as a VM's only egress rule, all egress was dropped, although the
+   model (following the API) said traffic to the group's addresses was allowed.
+2. **After an address-group rule was added to a group and later deleted, that
+   group's older egress rule stopped being enforced**, while the API still
+   listed it. Rules created afterwards worked.
+
+`osreach lint` therefore warns about every address-group rule. The competing
+explanations for (2), and a small experiment that tells them apart, are
+model-checked in [`tla/`](../tla/README.md).
+
+The practical rule: treat an osreach verdict as a statement about the
+configuration, and confirm changes that matter with a probe from the real
+network. osreach tells you *what to probe* and *what the answer should be*.

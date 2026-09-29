@@ -1,0 +1,65 @@
+{
+  "name": "sg-address-group-incident",
+  "description": "API calls and probe results recorded while restricting VM egress on a production Canonical OpenStack (ML2/OVN) cloud. Names are anonymised; see docs/case-study.md. Probes ran from the client machine on the admin network or from inside the VM (over SSH / RDP, which is why every in-VM probe also witnesses inbound admin access).",
+  "abstraction": {
+    "peer admin": "admin networks (generic, NOC, VPN)",
+    "peer internet": "a public address (1.1.1.1, 8.8.8.8, ubuntu.com)",
+    "peer internal": "management targets (MAAS, firewall and core-switch management)",
+    "peer any": "0.0.0.0/0",
+    "rule egress-no-internal": "about 80 plain CIDR rules covering everything except internal networks, abstracted to one rule to peer internet"
+  },
+  "vms": {"llm": ["llm-sg"], "web": ["web-sg"], "win": ["win-sg"]},
+  "init_rules": [
+    {"id": 1, "g": "llm-sg", "dir": "in",  "peer": "admin", "kind": "cidr", "note": "SSH / API from admin networks"},
+    {"id": 2, "g": "llm-sg", "dir": "out", "peer": "any",   "kind": "cidr", "note": "default egress to 0.0.0.0/0"},
+    {"id": 3, "g": "web-sg", "dir": "in",  "peer": "admin", "kind": "cidr", "note": "SSH / HTTPS from admin networks"},
+    {"id": 4, "g": "web-sg", "dir": "out", "peer": "any",   "kind": "cidr", "note": "default egress to 0.0.0.0/0"},
+    {"id": 5, "g": "win-sg", "dir": "in",  "peer": "admin", "kind": "cidr", "note": "RDP from admin networks"},
+    {"id": 6, "g": "win-sg", "dir": "out", "peer": "any",   "kind": "cidr", "note": "default egress to 0.0.0.0/0"}
+  ],
+  "events": [
+    {"ev": "add", "id": 7, "g": "llm-sg", "dir": "out", "peer": "internet", "kind": "ag", "note": "egress to address group 'everything except internal'"},
+    {"ev": "add", "id": 8, "g": "web-sg", "dir": "out", "peer": "internet", "kind": "ag"},
+    {"ev": "add", "id": 9, "g": "win-sg", "dir": "out", "peer": "internet", "kind": "ag"},
+
+    {"ev": "del", "id": 2, "note": "remove egress-anywhere from llm-sg"},
+    {"ev": "probe", "vm": "llm", "dir": "in",  "peer": "admin",    "ok": true,  "note": "SSH into the VM worked"},
+    {"ev": "probe", "vm": "llm", "dir": "out", "peer": "internet", "ok": false, "note": "curl https://1.1.1.1 timed out; DNS to 8.8.8.8 timed out"},
+    {"ev": "probe", "vm": "llm", "dir": "out", "peer": "internal", "ok": false, "note": "MAAS / firewall / switch timed out"},
+
+    {"ev": "add", "id": 10, "g": "llm-sg", "dir": "out", "peer": "any", "kind": "cidr", "note": "restore egress-anywhere (new rule)"},
+    {"ev": "probe", "vm": "llm", "dir": "out", "peer": "internet", "ok": true, "note": "DNS ok, https 200"},
+
+    {"ev": "del", "id": 7, "note": "remove all address-group rules"},
+    {"ev": "del", "id": 8},
+    {"ev": "del", "id": 9},
+
+    {"ev": "add", "id": 11, "g": "egress-no-internal", "dir": "out", "peer": "internet", "kind": "cidr", "note": "new group with plain CIDR rules"},
+
+    {"ev": "probe", "vm": "llm", "dir": "in",  "peer": "admin",    "ok": true},
+    {"ev": "probe", "vm": "llm", "dir": "out", "peer": "internet", "ok": true,  "note": "BEFORE: internet ok"},
+    {"ev": "probe", "vm": "llm", "dir": "out", "peer": "internal", "ok": true,  "note": "BEFORE: MAAS, firewall, switch reachable"},
+    {"ev": "attach", "vm": "llm", "g": "egress-no-internal"},
+    {"ev": "del", "id": 10},
+    {"ev": "probe", "vm": "llm", "dir": "out", "peer": "internet", "ok": true,  "note": "AFTER: internet ok"},
+    {"ev": "probe", "vm": "llm", "dir": "out", "peer": "internal", "ok": false, "note": "AFTER: internal blocked"},
+    {"ev": "probe", "vm": "llm", "dir": "in",  "peer": "admin",    "ok": true,  "note": "API from the admin network ok"},
+
+    {"ev": "probe", "vm": "web", "dir": "in",  "peer": "admin",    "ok": true,  "note": "SSH into the VM worked"},
+    {"ev": "probe", "vm": "web", "dir": "out", "peer": "internet", "ok": false, "note": "BEFORE: DNS and https timed out (unexpected)"},
+    {"ev": "probe", "vm": "web", "dir": "out", "peer": "internal", "ok": false, "note": "BEFORE: internal timed out (unexpected)"},
+    {"ev": "attach", "vm": "web", "g": "egress-no-internal"},
+    {"ev": "del", "id": 4},
+    {"ev": "probe", "vm": "web", "dir": "out", "peer": "internet", "ok": true},
+    {"ev": "probe", "vm": "web", "dir": "out", "peer": "internal", "ok": false},
+    {"ev": "probe", "vm": "web", "dir": "in",  "peer": "admin",    "ok": true,  "note": "website and SSH from the admin network ok"},
+
+    {"ev": "probe", "vm": "win", "dir": "in",  "peer": "admin",    "ok": true,  "note": "RDP session up"},
+    {"ev": "probe", "vm": "win", "dir": "out", "peer": "internet", "ok": false, "note": "DNS and TCP 443 to 1.1.1.1 failed (unexpected)"},
+    {"ev": "attach", "vm": "win", "g": "egress-no-internal"},
+    {"ev": "del", "id": 6},
+    {"ev": "probe", "vm": "win", "dir": "out", "peer": "internet", "ok": true},
+    {"ev": "probe", "vm": "win", "dir": "out", "peer": "internal", "ok": false},
+    {"ev": "probe", "vm": "win", "dir": "in",  "peer": "admin",    "ok": true}
+  ]
+}

@@ -9,7 +9,7 @@ description = "SMT-based reachability verification for OpenStack Neutron: securi
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.10"
-authors = [{ name = "YOUR NAME" }]
+authors = [{ name = "Bilal Sarwar" }]
 keywords = ["openstack", "neutron", "security-groups", "smt", "z3", "formal-methods", "network-verification"]
 classifiers = [
   "Development Status :: 3 - Alpha",
