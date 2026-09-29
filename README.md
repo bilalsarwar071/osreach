@@ -66,7 +66,7 @@ Endpoint selectors: `internet`, `cidr:198.51.100.0/24`, `vm:web-*`,
 ## Quick start (no cloud needed)
 
 ```bash
-git clone https://github.com/<you>/osreach && cd osreach
+git clone https://github.com/bilalsarwar071/osreach && cd osreach
 pip install -e '.[dev]'
 osreach exposure examples/demo-before.json
 osreach check    examples/demo-before.json examples/policy.yaml

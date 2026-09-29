@@ -8,7 +8,7 @@ osreach only **reads** from the Neutron, Nova and Keystone APIs.
 
 ```bash
 python3 -m venv ~/osreach-venv && . ~/osreach-venv/bin/activate
-pip install 'osreach[openstack] @ git+https://github.com/<you>/osreach'
+pip install 'osreach[openstack] @ git+https://github.com/bilalsarwar071/osreach'
 # or, from a checkout:  pip install -e '.[openstack]'
 ```
 
