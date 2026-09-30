@@ -95,24 +95,16 @@ exactly one survivor:
 
 ### Running the experiment (on a test VM, never production)
 
+`scripts/ag-experiment.sh` does everything: it moves the VM onto a fresh temporary
+group, probes, adds and deletes the address-group rule, probes again, writes the
+trace to `traces/`, and restores the VM's original groups even if interrupted.
+
 ```bash
-AP=<project id of the test VM>   VM=<test VM id>   DEF=<its current default group id>
-X=$(openstack security group create --project $AP ag-experiment -f value -c id)   # fresh egress-any rules
-openstack security group rule create --project $AP --ingress --protocol tcp --dst-port 22 --remote-ip <admin cidr> $X
-openstack server add security group $VM $X && openstack server remove security group $VM $DEF
-probe() { ssh <vm> 'curl -s -m 5 -o /dev/null -w "%{http_code}\n" https://1.1.1.1'; }
-probe                                                    # baseline: expect 200
-AG=$(openstack address group create --project $AP --address 1.1.1.1/32 ag-experiment -f value -c id)
-R=$(openstack security group rule create --project $AP --egress --ethertype IPv4 --remote-address-group $AG $X -f value -c id)
-sleep 10; probe                                          # A
-openstack security group rule delete $R; sleep 10; probe # B
-# clean up
-openstack server add security group $VM $DEF && openstack server remove security group $VM $X
-openstack security group delete $X && openstack address group delete $AG
+scripts/ag-experiment.sh <server-id> <project-id> <user@floating-ip> <admin-cidr>
+python tla/run.py        # the new trace is validated against every hypothesis
 ```
 
-Record the result as a new trace in `traces/` and run `python tla/run.py`.
-If it confirms H2a_dir or H2b_dir, the trace, the spec and the experiment
+If the result confirms H2a_dir or H2b_dir, the trace, the spec and the experiment
 together make a precise upstream bug report.
 
 ## Limits of the models
